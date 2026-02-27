@@ -1,0 +1,35 @@
+{
+  "name": "solana-nft-membership",
+  "version": "1.0.0",
+  "description": "Solana NFT Membership workshop menggunakan Metaplex Token Metadata Program",
+  "main": "nft-membership.ts",
+  "scripts": {
+    "generate": "npx ts-node generate-wallets.ts",
+    "show-wallets": "npx ts-node show-wallets.ts",
+    "start": "npx ts-node nft-membership.ts",
+    "workshop": "npx ts-node nft-membership.workshop.ts"
+  },
+  "keywords": [
+    "solana",
+    "nft",
+    "metaplex",
+    "spl-token",
+    "typescript",
+    "workshop"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
+    "@metaplex-foundation/umi": "^1.5.1",
+    "@metaplex-foundation/umi-bundle-defaults": "^1.5.1",
+    "@metaplex-foundation/umi-web3js-adapters": "^1.5.1",
+    "@solana/spl-token": "^0.4.8",
+    "@solana/web3.js": "^1.95.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

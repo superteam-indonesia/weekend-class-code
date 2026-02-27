@@ -1,0 +1,5 @@
+node_modules/
+dist/
+
+# Berisi private key — JANGAN pernah di-commit!
+wallets.json
