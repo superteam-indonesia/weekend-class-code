@@ -4,7 +4,10 @@
   "description": "Solana token workshop script using @solana/web3.js and @solana/spl-token with TypeScript",
   "main": "solana-token-transfer.ts",
   "scripts": {
-    "start": "npx ts-node solana-token-transfer.ts"
+    "generate": "npx ts-node generate-wallets.ts",
+    "show-wallets": "npx ts-node show-wallets.ts",
+    "start": "npx ts-node solana-token-transfer.ts",
+    "workshop": "npx ts-node solana-token-transfer.workshop.ts"
   },
   "keywords": [
     "solana",
