@@ -90,10 +90,20 @@ async function main() {
     process.exit(1);
   }
 
-  // TODO: Baca isi wallets.json dengan fs.readFileSync lalu JSON.parse
-  // TODO: Rekonstruksi walletA dengan Keypair.fromSecretKey(Uint8Array.from(...secretKey))
-  // TODO: Rekonstruksi walletB dengan cara yang sama
-  // TODO: Tampilkan walletA.publicKey.toBase58() dan walletB.publicKey.toBase58()
+  console.log('\n--- Memuat Wallet dari wallets.json ---');
+
+  const walletsData = JSON.parse(fs.readFileSync(WALLETS_FILE, 'utf-8'));
+
+  // Rekonstruksi Keypair dari secret key — hasilnya identik dengan keypair asli
+  const walletA = Keypair.fromSecretKey(
+    Uint8Array.from(walletsData.walletA.secretKey)
+  );
+  const walletB = Keypair.fromSecretKey(
+    Uint8Array.from(walletsData.walletB.secretKey)
+  );
+
+  console.log('Wallet A:', walletA.publicKey.toBase58());
+  console.log('Wallet B:', walletB.publicKey.toBase58());
 
   // ─────────────────────────────────────────────────────────────────────────
   // Langkah 1 — Setup Umi
