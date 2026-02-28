@@ -7,7 +7,7 @@
     "generate": "npx ts-node generate-wallets.ts",
     "show-wallets": "npx ts-node show-wallets.ts",
     "start": "npx ts-node nft-membership.ts",
-    "workshop": "npx ts-node nft-membership.workshop.ts"
+    "start-workshop": "npx ts-node nft-membership.workshop.ts"
   },
   "keywords": [
     "solana",

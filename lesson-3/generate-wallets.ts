@@ -3,7 +3,7 @@
  * Script generate-wallets.ts — jalankan SATU KALI sebelum memulai workshop
  *
  * Script ini membuat dua keypair baru dan menyimpannya ke wallets.json.
- * Setelah itu, isi walletA dengan SOL via faucet sebelum menjalankan npm start.
+ * Setelah itu, isi wallet pribadi via faucet, lalu transfer SOL ke Wallet A, sebelum menjalankan npm start.
  *
  * Jalankan: npm run generate
  */
@@ -59,10 +59,10 @@ function main() {
   console.log('  1. Jalankan: npm run show-wallets');
   console.log('     (untuk menampilkan alamat wallet dengan rapi)');
   console.log('');
-  console.log('  2. Isi Wallet A dengan SOL via faucet Devnet:');
-  console.log('     https://faucet.solana.com');
+  console.log('  2. Isi wallet pribadi Anda via faucet Devnet, lalu transfer SOL ke Wallet A:');
+  console.log('     Superstudy Faucet https://superstudy.fun/faucet');
   console.log('');
-  console.log('  3. Setelah terisi, jalankan: npm start');
+  console.log('  3. Setelah Wallet A terisi, jalankan: npm start');
   console.log('─────────────────────────────────────────────────────────\n');
 
   console.log('⚠️  PERINGATAN KEAMANAN:');

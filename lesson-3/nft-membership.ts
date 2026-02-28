@@ -7,7 +7,7 @@
  * Prasyarat sebelum menjalankan:
  *   1. npm run generate   — buat wallets.json (satu kali saja)
  *   2. npm run show-wallets — tampilkan alamat untuk faucet
- *   3. Isi Wallet A via https://faucet.solana.com
+ *   3. Isi wallet pribadi via faucet, lalu transfer ke Wallet A — Superstudy Faucet https://superstudy.fun/faucet
  *   4. npm start
  *
  * Jalankan: npm start
@@ -104,7 +104,7 @@ async function main() {
   if (!fs.existsSync(WALLETS_FILE)) {
     console.error('\n❌ wallets.json tidak ditemukan!');
     console.error('   Jalankan: npm run generate');
-    console.error('   kemudian isi Wallet A via https://faucet.solana.com\n');
+    console.error('   kemudian isi wallet pribadi via faucet dan transfer ke Wallet A — https://superstudy.fun/faucet\n');
     process.exit(1);
   }
 
