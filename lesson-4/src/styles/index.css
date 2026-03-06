@@ -1,0 +1,257 @@
+/* ============================================================
+   index.css — Dark theme matching slide deck aesthetics
+   Warna: navy gelap, aksen hijau Solana, aksen ungu
+   ============================================================ */
+
+:root {
+  --bg-primary: #0B1120;
+  --bg-card: #1A2540;
+  --accent-green: #14F195;
+  --accent-purple: #9945FF;
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  --border: #2A3A5C;
+  --error-bg: #3D1111;
+  --error-border: #EF4444;
+  --success-bg: #0D3320;
+  --pending-bg: #1E3A5F;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ---- Layout ---- */
+
+.app-container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: var(--accent-green);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+/* ---- Card ---- */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* ---- Balance ---- */
+
+.balance {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--accent-green);
+  margin-bottom: 0.75rem;
+}
+
+/* ---- Wallet Info ---- */
+
+.wallet-info {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.status-connected {
+  color: var(--accent-green);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.pubkey {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  word-break: break-all;
+  margin-top: 0.25rem;
+}
+
+.hint {
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+/* ---- Form ---- */
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.375rem;
+  color: var(--text-secondary);
+}
+
+.input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-purple);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Buttons ---- */
+
+.btn-primary {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--accent-green);
+  color: #0B1120;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  padding: 0.4rem 0.9rem;
+  background: transparent;
+  border: 1px solid var(--accent-green);
+  color: var(--accent-green);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.83rem;
+  transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(20, 241, 149, 0.08);
+}
+
+/* ---- Transaction Preview ---- */
+
+.tx-preview {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  font-size: 0.85rem;
+}
+
+.tx-preview h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.tx-preview p {
+  margin-bottom: 0.2rem;
+}
+
+/* ---- Transaction Status ---- */
+
+.tx-status {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.tx-status-signing,
+.tx-status-confirming {
+  background: var(--pending-bg);
+  border: 1px solid #2A4A7F;
+}
+
+.tx-status-success {
+  background: var(--success-bg);
+  border: 1px solid var(--accent-green);
+}
+
+.tx-status-error {
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+}
+
+.tx-link {
+  color: var(--accent-green);
+  text-decoration: none;
+  font-family: 'Consolas', monospace;
+  font-size: 0.83rem;
+  display: inline-block;
+  margin-top: 0.25rem;
+}
+
+.tx-link:hover {
+  text-decoration: underline;
+}
+
+.error-text {
+  color: #EF4444;
+}
+
+/* ---- Override wallet adapter button ---- */
+
+.wallet-adapter-button {
+  background: var(--accent-purple) !important;
+  border-radius: 8px !important;
+  font-family: inherit !important;
+}
+
+.wallet-adapter-button:hover {
+  background: #7B35CC !important;
+}
