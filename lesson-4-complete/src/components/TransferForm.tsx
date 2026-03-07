@@ -89,44 +89,36 @@ export default function TransferForm() {
       // --- LANGKAH 1: Buat instruksi transfer ---
       // SystemProgram.transfer adalah instruksi built-in Solana untuk transfer SOL
       // Tidak perlu program custom — ini sudah ada di protocol Solana
-      // TODO: Buat transferInstruction menggunakan SystemProgram.transfer()
-      // Hint:
-      //   const transferInstruction = SystemProgram.transfer({
-      //     fromPubkey: publicKey,
-      //     toPubkey: recipientPubkey,
-      //     lamports: lamports,
-      //   });
+      const transferInstruction = SystemProgram.transfer({
+        fromPubkey: publicKey,       // Pengirim (harus tanda tangan)
+        toPubkey: recipientPubkey,   // Penerima
+        lamports: lamports,          // Jumlah dalam lamports
+      });
 
       // --- LANGKAH 2: Buat objek Transaction dan tambahkan instruksi ---
       // Satu transaksi bisa berisi banyak instruksi (tapi kita pakai 1 saja di sini)
-      // TODO: Buat transaction dan tambahkan transferInstruction
-      // Hint: const transaction = new Transaction().add(transferInstruction);
+      const transaction = new Transaction().add(transferInstruction);
 
       // --- LANGKAH 3: Ambil blockhash terbaru ---
       // Blockhash = "cap waktu" transaksi. Jika terlalu lama tidak dikirim,
       // blockhash akan expired dan transaksi ditolak.
-      // TODO: Dapatkan blockhash dan lastValidBlockHeight, set ke transaction
-      // Hint:
-      //   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-      //   transaction.recentBlockhash = blockhash;
-      //   transaction.feePayer = publicKey;
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+      transaction.recentBlockhash = blockhash;
+      transaction.feePayer = publicKey;  // Siapa yang bayar gas fee
 
       // --- LANGKAH 4: Kirim ke wallet untuk ditandatangani ---
       // sendTransaction() akan membuka popup Phantom untuk konfirmasi user
       // User bisa APPROVE atau REJECT di sini
       setStatus('confirming');
-      // TODO: Kirim transaction melalui sendTransaction(), simpan hasilnya di signature
-      // TODO: setTxSignature(signature)
-      // Hint: const signature = await sendTransaction(transaction, connection);
+      const signature = await sendTransaction(transaction, connection);
+      setTxSignature(signature);
 
       // --- LANGKAH 5: Tunggu konfirmasi dari validator ---
       // 'confirmed': transaksi sudah disetujui oleh mayoritas validator
-      // TODO: Tunggu konfirmasi dengan connection.confirmTransaction()
-      // Hint:
-      //   await connection.confirmTransaction(
-      //     { signature, blockhash, lastValidBlockHeight },
-      //     'confirmed'
-      //   );
+      await connection.confirmTransaction(
+        { signature, blockhash, lastValidBlockHeight },
+        'confirmed'
+      );
 
       setStatus('success');
 

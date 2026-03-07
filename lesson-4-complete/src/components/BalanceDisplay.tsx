@@ -36,12 +36,13 @@ export default function BalanceDisplay() {
     setError('');
 
     try {
-      // TODO: Panggil connection.getBalance(publicKey) untuk mendapat saldo dalam lamports
-      // Hint: const lamports = await connection.getBalance(publicKey);
+      // getBalance() adalah RPC call — berkomunikasi dengan node Solana
+      // Ini operasi READ: tidak butuh tanda tangan, tidak perlu bayar fee
+      const lamports = await connection.getBalance(publicKey);
 
-      // TODO: Konversi lamports ke SOL, lalu simpan ke state
-      // Hint: setBalance(lamports / LAMPORTS_PER_SOL);
-      // Note: LAMPORTS_PER_SOL = 1_000_000_000 (sudah diimport di atas)
+      // Konversi lamports → SOL
+      // LAMPORTS_PER_SOL = 1_000_000_000 (konstanta dari @solana/web3.js)
+      setBalance(lamports / LAMPORTS_PER_SOL);
     } catch (err) {
       console.error('Gagal mengambil saldo:', err);
       setError('Gagal memuat saldo. Periksa koneksi internet kamu.');

@@ -4,9 +4,7 @@ import SolanaProviders from '@/components/SolanaProviders';
 import WalletConnect from '@/components/WalletConnect';
 import BalanceDisplay from '@/components/BalanceDisplay';
 import TransferForm from '@/components/TransferForm';
-
-// TODO: (Bagian 4) Uncomment import berikut setelah ProgramInteraction selesai diimplementasi
-// import ProgramInteraction from '@/components/ProgramInteraction';
+import ProgramInteraction from '@/components/ProgramInteraction';
 
 export default function Home() {
   return (
@@ -24,8 +22,8 @@ export default function Home() {
         {/* Komponen 3: Kirim SOL — operasi WRITE (Slide 12) */}
         <TransferForm />
 
-        {/* TODO: (Bagian 4) Uncomment setelah ProgramInteraction selesai diimplementasi */}
-        {/* <ProgramInteraction /> */}
+        {/* Komponen 4: Interaksi dengan smart contract Anchor (Bagian 4) */}
+        <ProgramInteraction />
       </div>
     </SolanaProviders>
   );

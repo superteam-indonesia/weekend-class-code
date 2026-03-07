@@ -1,0 +1,129 @@
+{
+  "address": "CounterProgram1111111111111111111111111111",
+  "metadata": {
+    "name": "counter",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Simple counter program untuk demo Anchor IDL integration"
+  },
+  "instructions": [
+    {
+      "name": "initialize",
+      "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "counter",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [99, 111, 117, 110, 116, 101, 114] },
+              { "kind": "account", "path": "authority" }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "increment",
+      "discriminator": [11, 18, 104, 9, 104, 174, 59, 33],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "counter",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [99, 111, 117, 110, 116, 101, 114] },
+              { "kind": "account", "path": "authority" }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "decrement",
+      "discriminator": [106, 227, 168, 59, 248, 27, 150, 101],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "counter",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [99, 111, 117, 110, 116, 101, 114] },
+              { "kind": "account", "path": "authority" }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "reset",
+      "discriminator": [231, 58, 255, 195, 231, 52, 182, 97],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "counter",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [99, 111, 117, 110, 116, 101, 114] },
+              { "kind": "account", "path": "authority" }
+            ]
+          }
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Counter",
+      "discriminator": [255, 176, 4, 245, 188, 253, 124, 25]
+    }
+  ],
+  "types": [
+    {
+      "name": "Counter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "authority", "type": "pubkey" },
+          { "name": "count", "type": "u64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "CounterUnderflow",
+      "msg": "Cannot decrement counter below zero"
+    }
+  ]
+}

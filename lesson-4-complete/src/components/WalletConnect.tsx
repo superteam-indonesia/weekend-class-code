@@ -17,8 +17,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export default function WalletConnect() {
-  // TODO: Ambil publicKey dan connected dari useWallet()
-  // Hint: const { publicKey, connected } = useWallet();
+  // Hook dari wallet-adapter — beri kita info dan kontrol wallet
+  const { publicKey, connected } = useWallet();
 
   return (
     <div className="card">
@@ -28,14 +28,24 @@ export default function WalletConnect() {
       {/* Tombol ini menangani connect, disconnect, dan tampilkan address secara otomatis */}
       <WalletMultiButton />
 
-      {/* TODO: Tampilkan info wallet jika connected && publicKey
-          - Tampilkan <p className="status-connected">Wallet Terhubung!</p>
-          - Tampilkan publicKey.toBase58() sebagai alamat wallet
-          - Gunakan className="pubkey" untuk styling monospace
-          - Tambahkan hint: "Ini adalah identitas kamu di blockchain Solana..." */}
+      {connected && publicKey && (
+        <div className="wallet-info">
+          <p className="status-connected">Wallet Terhubung!</p>
+          {/* publicKey.toBase58() mengubah public key menjadi string yang bisa dibaca */}
+          <p className="pubkey">
+            <strong>Alamat:</strong> {publicKey.toBase58()}
+          </p>
+          <p className="hint">
+            Ini adalah identitas kamu di blockchain Solana. Seperti nomor rekening, tapi bisa dilihat semua orang.
+          </p>
+        </div>
+      )}
 
-      {/* TODO: Tampilkan hint jika !connected
-          - "Pastikan Phantom Wallet sudah terinstall di browser kamu..." */}
+      {!connected && (
+        <p className="hint">
+          Pastikan Phantom Wallet sudah terinstall di browser kamu. Klik tombol di atas untuk terhubung.
+        </p>
+      )}
     </div>
   );
 }
