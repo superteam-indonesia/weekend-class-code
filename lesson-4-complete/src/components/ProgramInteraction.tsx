@@ -17,6 +17,7 @@
 // IDL (Interface Definition Language):
 // File JSON yang mendeskripsikan struktur program — seperti ABI di Ethereum.
 // Anchor generate IDL otomatis dari source code Rust program.
+// Program ID sudah tertanam di CounterIDL.address — tidak perlu env var.
 // ============================================================
 
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
@@ -49,18 +50,12 @@ export default function ProgramInteraction() {
   // AnchorProvider menggabungkan:
   //   - connection: tahu cara bicara ke blockchain
   //   - wallet: tahu cara menandatangani transaksi
-  // Program menggunakan provider + IDL untuk encoding/decoding instruksi
+  // Program ID diambil otomatis dari CounterIDL.address
   const getProgram = useCallback(() => {
-    const provider = new AnchorProvider(connection, wallet as Parameters<typeof AnchorProvider>[1], {
+    const provider = new AnchorProvider(connection, wallet as any, {
       commitment: 'confirmed',
     });
-    // Anchor 0.30: Program ID diambil dari IDL.address
-    // Override dengan env var jika program sudah di-deploy ke devnet
-    const idl = {
-      ...CounterIDL,
-      address: process.env.NEXT_PUBLIC_COUNTER_PROGRAM_ID ?? CounterIDL.address,
-    };
-    return new Program(idl as Parameters<typeof Program>[0], provider);
+    return new Program(CounterIDL as any, provider);
   }, [connection, wallet]);
 
   // Helper: turunkan PDA (Program Derived Address) untuk counter milik user ini
@@ -69,15 +64,12 @@ export default function ProgramInteraction() {
   // Seeds: ["counter", publicKey] → setiap user punya counter sendiri.
   // findProgramAddressSync mencari nonce (bump) agar hasilnya bukan di curve ed25519.
   const getCounterPDA = useCallback((): PublicKey => {
-    const programId = new PublicKey(
-      process.env.NEXT_PUBLIC_COUNTER_PROGRAM_ID ?? CounterIDL.address
-    );
     const [pda] = PublicKey.findProgramAddressSync(
       [
         Buffer.from('counter'),    // seed 1: string literal "counter"
         publicKey!.toBuffer(),     // seed 2: bytes dari public key user
       ],
-      programId
+      new PublicKey(CounterIDL.address)
     );
     return pda;
   }, [publicKey]);
@@ -131,9 +123,9 @@ export default function ProgramInteraction() {
       await program.methods
         .initialize()
         .accounts({
-          authority: publicKey,              // Signer: user yang punya counter ini
-          counter: pda,                      // Akun PDA yang akan dibuat
-          systemProgram: SystemProgram.programId, // Butuh SystemProgram untuk buat akun baru
+          authority: publicKey,
+          counter: pda,
+          systemProgram: SystemProgram.programId,
         })
         .rpc();
 
@@ -146,7 +138,6 @@ export default function ProgramInteraction() {
   };
 
   // Fungsi increment — tambahkan 1 ke counter
-  // Pola sama dengan initialize: methods → accounts → rpc
   const handleIncrement = async () => {
     if (!publicKey) return;
     setTxStatus('Mengirim transaksi increment...');

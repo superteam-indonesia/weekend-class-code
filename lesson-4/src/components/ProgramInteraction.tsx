@@ -17,6 +17,7 @@
 // IDL (Interface Definition Language):
 // File JSON yang mendeskripsikan struktur program — seperti ABI di Ethereum.
 // Anchor generate IDL otomatis dari source code Rust program.
+// Program ID sudah tertanam di IDL.address — tidak perlu env var.
 // ============================================================
 
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
@@ -44,31 +45,20 @@ export default function ProgramInteraction() {
   const [txStatus, setTxStatus] = useState('');
   const [error, setError] = useState('');
 
-  // TODO: Definisikan PROGRAM_ID dari environment variable
-  // Fallback ke CounterIDL.address jika env var tidak di-set
-  // Hint:
-  //   const PROGRAM_ID = new PublicKey(
-  //     process.env.NEXT_PUBLIC_COUNTER_PROGRAM_ID ?? CounterIDL.address
-  //   );
-
   // TODO: Buat helper getProgram() yang mengembalikan instance Program Anchor
   //
-  // AnchorProvider menghubungkan Anchor ke:
-  //   - connection: untuk RPC calls ke blockchain
-  //   - wallet: untuk menandatangani transaksi
+  // AnchorProvider menggabungkan:
+  //   - connection: tahu cara bicara ke blockchain
+  //   - wallet: tahu cara menandatangani transaksi
+  // Program menggunakan provider + IDL untuk encoding/decoding instruksi
+  // Program ID otomatis diambil dari CounterIDL.address
   //
   // Hint:
   //   const getProgram = () => {
   //     const provider = new AnchorProvider(connection, wallet as any, {
   //       commitment: 'confirmed',
   //     });
-  //     // Anchor 0.30: Program ID diambil dari IDL.address
-  //     // Kita override address jika NEXT_PUBLIC_COUNTER_PROGRAM_ID di-set
-  //     const idl = {
-  //       ...CounterIDL,
-  //       address: process.env.NEXT_PUBLIC_COUNTER_PROGRAM_ID ?? CounterIDL.address,
-  //     };
-  //     return new Program(idl as any, provider);
+  //     return new Program(CounterIDL as any, provider);
   //   };
 
   // TODO: Buat helper getCounterPDA() yang menurunkan alamat PDA counter
@@ -80,11 +70,8 @@ export default function ProgramInteraction() {
   // Hint:
   //   const getCounterPDA = (): PublicKey => {
   //     const [pda] = PublicKey.findProgramAddressSync(
-  //       [
-  //         Buffer.from('counter'),
-  //         publicKey!.toBuffer(),
-  //       ],
-  //       new PublicKey(process.env.NEXT_PUBLIC_COUNTER_PROGRAM_ID ?? CounterIDL.address)
+  //       [Buffer.from('counter'), publicKey!.toBuffer()],
+  //       new PublicKey(CounterIDL.address)
   //     );
   //     return pda;
   //   };
@@ -128,7 +115,7 @@ export default function ProgramInteraction() {
       // TODO: Panggil instruksi initialize
       //   Accounts yang dibutuhkan: authority, counter (PDA), systemProgram
       //   Hint:
-      //     const sig = await program.methods
+      //     await program.methods
       //       .initialize()
       //       .accounts({
       //         authority: publicKey,
@@ -151,8 +138,7 @@ export default function ProgramInteraction() {
     setError('');
     try {
       // TODO: Buat instance program dan PDA
-      // TODO: Panggil program.methods.increment().accounts({...}).rpc()
-      //   Accounts: authority, counter (PDA)
+      // TODO: Panggil program.methods.increment().accounts({ authority, counter }).rpc()
       setTxStatus('Berhasil! Counter bertambah.');
       await fetchCount();
     } catch (err: unknown) {
@@ -168,7 +154,7 @@ export default function ProgramInteraction() {
     setError('');
     try {
       // TODO: Buat instance program dan PDA
-      // TODO: Panggil program.methods.decrement().accounts({...}).rpc()
+      // TODO: Panggil program.methods.decrement().accounts({ authority, counter }).rpc()
       setTxStatus('Berhasil! Counter berkurang.');
       await fetchCount();
     } catch (err: unknown) {
@@ -184,7 +170,7 @@ export default function ProgramInteraction() {
     setError('');
     try {
       // TODO: Buat instance program dan PDA
-      // TODO: Panggil program.methods.reset().accounts({...}).rpc()
+      // TODO: Panggil program.methods.reset().accounts({ authority, counter }).rpc()
       setTxStatus('Berhasil! Counter direset ke 0.');
       await fetchCount();
     } catch (err: unknown) {
