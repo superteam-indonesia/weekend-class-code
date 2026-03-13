@@ -1,47 +1,86 @@
-# Rust Primer Workshop — Lesson 5
+# Lesson 5 — Rust Primer
 
-Workshop ini memperkenalkan bahasa Rust dalam konteks pengembangan Solana.
-Semua kode ditulis murni dalam Rust — tanpa dependency eksternal — sehingga bisa langsung dijalankan di komputer manapun yang sudah terinstal Rust.
+Selamat datang di lesson pertama yang menggunakan bahasa **Rust**!
 
-Setelah menyelesaikan workshop ini, kamu akan siap menulis program Anchor di Lesson 6.
+Sampai sekarang kita sudah pakai TypeScript untuk berinteraksi dengan Solana.
+Lesson ini kita mulai belajar bahasa yang dipakai untuk **menulis program Solana itu sendiri**.
+
+> Rust adalah bahasa yang dipakai di Anchor — framework yang akan kita pakai di Lesson 6 untuk build escrow program pertama kamu.
+
+Jangan khawatir kalau ini pertama kali kamu lihat Rust. Lesson ini dirancang dari nol.
+
+---
+
+## Yang Akan Kamu Pelajari Hari Ini
+
+- Cara deklarasi variabel dan kapan pakai `mut`
+- Tipe data Rust yang sering muncul di Anchor (`u64`, `bool`, `String`, `&str`)
+- Struct — cara Anchor menyimpan data on-chain
+- Enum — cara Anchor mendefinisikan error codes
+- `Option` dan `Result` — cara Rust handle "mungkin ada" dan "mungkin gagal"
+- Operator `?` — cara elegan propagate error (muncul di setiap Anchor instruction)
+- Borrowing dengan `&` — kenapa semua parameter di Anchor pakai referensi
 
 ---
 
 ## Prasyarat
 
-- **Rust** (via `rustup`) versi 1.70 atau lebih baru
+- Sudah selesai Lesson 4
+- **Rust** sudah terinstall di komputer kamu
 
+  Belum install? Jalankan perintah ini:
   ```bash
-  rustc --version   # harus >= 1.70.0
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
   ```
+  Ikuti instruksi yang muncul, lalu tutup dan buka kembali terminal kamu.
 
-  Jika belum terinstal, ikuti panduan di: https://rustup.rs
-
-- **Cargo** (sudah termasuk dalam instalasi Rust)
-
+  Cek berhasil:
   ```bash
-  cargo --version
+  rustc --version   # harus muncul versi, contoh: rustc 1.75.0
+  cargo --version   # harus muncul versi, contoh: cargo 1.75.0
   ```
 
 ---
 
-## Cara Menjalankan
+## Cara Menjalankan Workshop
 
-### Workshop (file latihan peserta)
+### 1. Masuk ke folder lesson-5
 
 ```bash
-cd lesson-5
+cd weekend-class-code/lesson-5
+```
+
+### 2. Jalankan file workshop (file latihan kamu)
+
+```bash
 cargo run --bin workshop
 ```
 
-### Solution (jawaban lengkap — untuk referensi)
+Program akan **compile** tapi akan berhenti di bagian yang belum diisi dan mencetak:
+```
+not yet implemented: <pesan TODO>
+```
+
+Itu normal! Artinya kamu perlu isi bagian tersebut.
+
+### 3. Edit file workshop dan isi TODO-nya
+
+Buka `src/workshop.rs` di editor kamu, cari `todo!(...)`, isi dengan kode yang benar,
+lalu jalankan lagi:
+
+```bash
+cargo run --bin workshop
+```
+
+Ulangi sampai program berjalan penuh tanpa error.
+
+### 4. Lihat jawaban (kalau stuck)
 
 ```bash
 cargo run --bin solution
 ```
 
-> **Catatan:** File workshop (`src/workshop.rs`) akan **compile** tapi akan **panic** di bagian yang belum diisi.
-> Isi satu `todo!()` sekaligus, jalankan, lihat hasilnya, lanjut ke yang berikutnya.
+Atau buka `src/main.rs` di editor.
 
 ---
 
@@ -49,127 +88,147 @@ cargo run --bin solution
 
 ```
 lesson-5/
-├── Cargo.toml            # konfigurasi project (dua binary: solution + workshop)
+├── Cargo.toml            # konfigurasi project Rust
 ├── src/
-│   ├── main.rs           # SOLUSI — jawaban lengkap
-│   └── workshop.rs       # FILE LATIHAN — isi bagian TODO ini
+│   ├── workshop.rs       # ← FILE INI yang kamu kerjakan
+│   └── main.rs           # jawaban lengkap (jangan buka dulu!)
 └── README.md
 ```
 
 ---
 
-## Alur Workshop (5 Section)
+## Alur Workshop
+
+Workshop ini punya **5 section** yang harus diselesaikan berurutan.
+Setiap section memperkenalkan satu konsep Rust baru.
 
 ### Section A — Variabel dan Tipe Data *(~10 menit)*
 
-Konsep yang dipraktikkan:
-- Deklarasi variabel dengan `let`
-- Keyword `mut` untuk variabel yang bisa diubah
-- Tipe data: `u64`, `bool`, `&str`
-- Underscore sebagai pemisah angka: `1_000_000`
+Kamu akan belajar cara deklarasi variabel di Rust dan kapan harus pakai `mut`.
 
-**Kenapa `u64`?** Di Solana, jumlah SOL dan token disimpan dalam lamports sebagai `u64`
-(unsigned 64-bit integer). Tidak ada angka negatif di sini — kamu tidak bisa punya saldo minus.
+```rust
+let harga: u64 = 1_000_000; // tidak bisa diubah
+let mut saldo: u64 = 5_000_000; // bisa diubah karena pakai `mut`
+saldo -= harga; // ini bisa karena `saldo` adalah `mut`
+```
+
+**Koneksi ke Solana:** `u64` adalah tipe yang paling sering muncul di Anchor
+karena semua jumlah lamports dan token disimpan sebagai unsigned 64-bit integer.
 
 ---
 
 ### Section B — Struct dan impl *(~15 menit)*
 
-Konsep yang dipraktikkan:
-- Definisi `struct` dengan multiple field
-- `impl` block untuk menambahkan method
-- Konstruktor `new()`
-- `self` dan `&self` — perbedaan method yang mutate vs yang hanya baca
+Kamu akan membuat `EscrowOffer` — sebuah struct yang menyimpan data offer escrow.
 
-**Koneksi ke Anchor:** Struct `EscrowOffer` yang kamu tulis hari ini adalah versi sederhana dari
-`EscrowState` yang akan kamu deklarasikan di Lesson 6 dengan `#[account]`.
+```rust
+struct EscrowOffer {
+    pub id: u64,
+    pub maker: String,
+    pub token_offered_amount: u64,
+    pub token_wanted_amount: u64,
+}
+```
+
+**Koneksi ke Anchor:** Struct `EscrowOffer` yang kamu tulis hari ini bentuknya hampir
+identik dengan `EscrowState` yang akan kamu deklarasikan di Lesson 6 dengan `#[account]`.
 
 ---
 
 ### Section C — Enum dan match *(~10 menit)*
 
-Konsep yang dipraktikkan:
-- Definisi `enum` dengan multiple variant
-- `match` expression — exhaustive pattern matching
-- `impl Display` untuk pesan error yang readable
+Kamu akan membuat `EscrowError` — enum yang mendefinisikan berbagai jenis error.
 
-**Koneksi ke Anchor:** `EscrowError` di sini adalah versi sederhana dari error codes di Anchor
-yang didekorasi dengan `#[error_code]`.
+```rust
+enum EscrowError {
+    InvalidAmount,
+    Unauthorized,
+    OfferNotFound,
+}
+```
+
+**Koneksi ke Anchor:** Di Anchor, error codes didefinisikan persis seperti ini,
+hanya ditambahkan `#[error_code]` di atasnya.
 
 ---
 
-### Section D — Option dan Result dengan `?` *(~15 menit)*
+### Section D — Option dan Result *(~15 menit)*
 
-Konsep yang dipraktikkan:
-- `Result<T, E>` — return value yang bisa berhasil atau gagal
-- Operator `?` — cara elegan untuk propagasi error
-- `Option<T>` — nilai yang mungkin ada atau tidak ada
-- `if let Some(x) = ...` — unwrap aman tanpa risiko panic
-- `.map()` dan `.unwrap_or_else()` — transformasi option
+Kamu akan belajar dua tipe paling penting di Rust:
 
-**Kenapa penting?** Hampir semua fungsi di Anchor return `Result<()>`. Operator `?`
-digunakan di setiap baris instruksi handler. Menguasai ini = fluent di Anchor.
+- **`Option<T>`** — nilai yang mungkin ada (`Some`) atau tidak ada (`None`)
+- **`Result<T, E>`** — operasi yang bisa berhasil (`Ok`) atau gagal (`Err`)
+- **Operator `?`** — cara singkat untuk propagate error tanpa menulis `match` panjang
+
+**Koneksi ke Anchor:** Setiap instruction handler di Anchor return `Result<()>`.
+Operator `?` muncul di hampir setiap baris kode Anchor.
 
 ---
 
 ### Section E — References dan Borrowing *(~10 menit)*
 
-Konsep yang dipraktikkan:
-- Borrow dengan `&` vs move (tanpa `&`)
-- Function signature dengan reference parameter
-- Kenapa semua parameter di CPI Anchor menggunakan referensi
+Kamu akan belajar kenapa parameter fungsi di Anchor selalu pakai `&`:
 
-**Koneksi ke Anchor:** Di Anchor, accounts diteruskan lewat `ctx.accounts.nama_account`
-yang selalu berupa referensi. Kamu tidak pernah "memindahkan" ownership sebuah account.
+```rust
+// Kenapa &EscrowOffer, bukan EscrowOffer?
+fn cancel_offer(offer: &EscrowOffer, caller: &str) -> Result<(), EscrowError>
+```
 
----
-
-## Ringkasan Konsep
-
-| Konsep | Syntax | Contoh dalam Anchor |
-|--------|--------|---------------------|
-| Struct | `pub struct Foo { pub x: u64 }` | `#[account] pub struct State { ... }` |
-| Impl | `impl Foo { fn bar(&self) {} }` | Method di account struct |
-| Enum error | `enum E { Invalid }` | `#[error_code] pub enum E { ... }` |
-| Result + `?` | `fn f() -> Result<(), E> { g()?; Ok(()) }` | Setiap instruction handler |
-| Option | `Option<T>`, `if let Some(x)` | Optional accounts, optional fields |
-| Reference | `fn f(x: &Foo)` | `ctx.accounts.vault`, CPI helpers |
-| Match | `match e { A => ..., B => ... }` | Error handling, status checks |
+**Koneksi ke Anchor:** Di Anchor, semua account diteruskan lewat referensi
+(`&ctx.accounts.escrow`, `&ctx.accounts.vault`). Kamu tidak pernah "memindahkan"
+sebuah account — kamu hanya meminjamnya.
 
 ---
 
-## Materi Tambahan
+## Setelah Selesai Workshop
 
-### Wajib dibaca sebelum Lesson 6
-- [The Rust Book — Chapters 4-6](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html)
-  (ownership, references, enums dan pattern matching)
+Di bagian bawah `src/workshop.rs` ada komentar **BONUS** yang menampilkan
+kode Anchor asli dari Lesson 6. Baca dan jawab pertanyaan ini:
 
-### Latihan mandiri (opsional, kerjakan sebelum Lesson 6)
-- [Rustlings](https://rustlings.rust-lang.org/) — exercises interaktif Rust
-  Prioritaskan chapter berikut (dalam urutan ini):
-  1. `variables`
-  2. `primitive_types`
-  3. `move_semantics`
-  4. `structs`
-  5. `enums`
-  6. `error_handling`
-
-### Referensi Anchor (preview Lesson 6)
-- https://www.anchor-lang.com/docs
-- https://learn.blueshift.gg/en/courses/anchor-for-dummies/anchor-101
+> **Bagian mana dari kode Anchor itu yang sudah familiar setelah hari ini?**
 
 ---
 
-## Next Steps
+## Latihan Mandiri (Sebelum Lesson 6)
+
+Kalau mau memperdalam Rust sebelum lesson berikutnya, kerjakan latihan-latihan
+di [Rustlings](https://rustlings.rust-lang.org/) — tool interaktif resmi dari komunitas Rust.
+
+Prioritaskan chapter berikut (dalam urutan ini):
+
+| Chapter | Konsep |
+|---------|--------|
+| `variables` | Variabel dan mutability |
+| `primitive_types` | Tipe data dasar |
+| `move_semantics` | Ownership dan move |
+| `structs` | Struct dan method |
+| `enums` | Enum dan pattern matching |
+| `error_handling` | Result, Option, dan `?` |
+
+---
+
+## Referensi
+
+- [The Rust Book](https://doc.rust-lang.org/book/) — buku resmi Rust, gratis dan sangat baik
+- [Anchor Docs](https://www.anchor-lang.com/docs) — preview apa yang kita build di Lesson 6
+- [Blueshift — Anchor 101](https://learn.blueshift.gg/en/courses/anchor-for-dummies/anchor-101)
+
+---
+
+## Langkah Selanjutnya
 
 **Lesson 6 — Anchor Part 2: Building Escrows**
 
-Kamu akan mengambil konsep yang dipelajari hari ini dan menerapkannya sebagai on-chain program:
-- `EscrowOffer` → `#[account] pub struct EscrowState`
-- `EscrowError` → `#[error_code] pub enum EscrowError`
-- `make_offer()` → instruction handler yang write ke blockchain
-- References → account contexts dengan `&ctx.accounts.vault`
+Kamu akan mengambil `EscrowOffer` dan `EscrowError` yang kamu tulis hari ini
+dan mengubahnya menjadi program yang berjalan di blockchain Solana:
 
-Cek progress kamu di Superteam Indonesia:
+- `EscrowOffer` → `#[account] pub struct EscrowState { ... }`
+- `EscrowError` → `#[error_code] pub enum EscrowError { ... }`
+- Instruction `make_offer()` → on-chain transaction yang ditulis ke Devnet
+
+---
+
+Sudah selesai? Bagikan progres kamu di komunitas!
+
 - Telegram: [t.me/superteamindonesia](https://t.me/superteamindonesia)
 - Website: [superteam.fun/indonesia](https://superteam.fun/indonesia)
