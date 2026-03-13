@@ -1,320 +1,175 @@
-# Rust Primer + Anchor Intro — Lesson 5
+# Rust Primer Workshop — Lesson 5
 
-Lesson ini adalah fondasi sebelum kamu bisa menulis program Solana dengan Anchor.
-Kita akan belajar sintaks Rust dari nol — mulai dari variabel sampai ownership —
-lalu melihat bagaimana Anchor menyederhanakan pengembangan program Solana.
+Workshop ini memperkenalkan bahasa Rust dalam konteks pengembangan Solana.
+Semua kode ditulis murni dalam Rust — tanpa dependency eksternal — sehingga bisa langsung dijalankan di komputer manapun yang sudah terinstal Rust.
 
-Tidak ada script TypeScript di lesson ini. Semua latihan dilakukan melalui **Rustlings**,
-sebuah tool interaktif yang akan membimbingmu belajar Rust dengan latihan kecil-kecil.
+Setelah menyelesaikan workshop ini, kamu akan siap menulis program Anchor di Lesson 6.
 
 ---
 
 ## Prasyarat
 
-- Sudah selesai Lesson 4 (Building UIs in Solana)
-- Rust dan Cargo terinstall — jika belum:
+- **Rust** (via `rustup`) versi 1.70 atau lebih baru
+
   ```bash
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-  source ~/.cargo/env
+  rustc --version   # harus >= 1.70.0
   ```
-- Verifikasi instalasi:
+
+  Jika belum terinstal, ikuti panduan di: https://rustup.rs
+
+- **Cargo** (sudah termasuk dalam instalasi Rust)
+
   ```bash
-  rustc --version
   cargo --version
   ```
 
 ---
 
-## Instalasi Rustlings
+## Cara Menjalankan
 
-Rustlings adalah tool latihan Rust resmi dari komunitas Rust. Install dengan:
-
-```bash
-cargo install rustlings
-rustlings init
-cd rustlings
-```
-
-Atau jika pakai script cepat:
+### Workshop (file latihan peserta)
 
 ```bash
-curl -L https://raw.githubusercontent.com/rust-lang/rustlings/main/install.sh | bash
+cd lesson-5
+cargo run --bin workshop
 ```
 
----
+### Solution (jawaban lengkap — untuk referensi)
 
-## Cara Menjalankan Rustlings
-
-### Mulai latihan:
 ```bash
-rustlings watch
-```
-Rustlings akan otomatis mendeteksi file yang kamu edit dan menampilkan feedback langsung.
-
-### Lihat daftar latihan:
-```bash
-rustlings list
+cargo run --bin solution
 ```
 
-### Cek progres:
-```bash
-rustlings progress
-```
+> **Catatan:** File workshop (`src/workshop.rs`) akan **compile** tapi akan **panic** di bagian yang belum diisi.
+> Isi satu `todo!()` sekaligus, jalankan, lihat hasilnya, lanjut ke yang berikutnya.
 
-### Jalankan satu latihan tertentu:
-```bash
-rustlings run variables1
+---
+
+## Struktur File
+
+```
+lesson-5/
+├── Cargo.toml            # konfigurasi project (dua binary: solution + workshop)
+├── src/
+│   ├── main.rs           # SOLUSI — jawaban lengkap
+│   └── workshop.rs       # FILE LATIHAN — isi bagian TODO ini
+└── README.md
 ```
 
 ---
 
-## Target Latihan Lesson 5
+## Alur Workshop (5 Section)
 
-Selesaikan chapter-chapter berikut dalam urutan ini:
+### Section A — Variabel dan Tipe Data *(~10 menit)*
 
-| Chapter | Konsep | Jumlah Latihan |
-|---------|--------|---------------|
-| `variables` | Variabel, mutability, shadowing | 6 |
-| `functions` | Deklarasi fungsi, return value | 5 |
-| `if` | Conditional expression | 2 |
-| `primitive_types` | Tipe dasar, tuple, array | 6 |
-| `vecs` | Vector (koleksi dinamis) | 2 |
-| `structs` | Struct dan metodenya | 3 |
-| `enums` | Enum, Option, match | 5 |
-| `strings` | String vs &str | 4 |
-| `modules` | mod, pub, use | 3 |
-| `move_semantics` | Ownership, move, borrow | 6 |
+Konsep yang dipraktikkan:
+- Deklarasi variabel dengan `let`
+- Keyword `mut` untuk variabel yang bisa diubah
+- Tipe data: `u64`, `bool`, `&str`
+- Underscore sebagai pemisah angka: `1_000_000`
 
-**Total: ~42 latihan** — selesaikan secara bertahap sesuai jadwal lesson.
+**Kenapa `u64`?** Di Solana, jumlah SOL dan token disimpan dalam lamports sebagai `u64`
+(unsigned 64-bit integer). Tidak ada angka negatif di sini — kamu tidak bisa punya saldo minus.
 
 ---
 
-## Penjelasan Konsep — Ringkasan Lesson 5
+### Section B — Struct dan impl *(~15 menit)*
 
-### Langkah 1: Variabel & Mutability
+Konsep yang dipraktikkan:
+- Definisi `struct` dengan multiple field
+- `impl` block untuk menambahkan method
+- Konstruktor `new()`
+- `self` dan `&self` — perbedaan method yang mutate vs yang hanya baca
 
-Di Rust, variabel default bersifat **immutable** (tidak bisa diubah). Ini bukan keterbatasan —
-ini adalah fitur keamanan. Dengan default immutable, compiler bisa mendeteksi bug lebih awal.
-
-```rust
-// Immutable — nilai tidak bisa diubah
-let nama = "Budi";
-
-// Mutable — perlu kata kunci mut
-let mut saldo: u64 = 1_000_000;
-saldo += 500_000;
-
-// Constant — immutable dan harus ada tipe
-const LAMPORTS_PER_SOL: u64 = 1_000_000_000;
-```
-
-Di Solana/Anchor, kamu akan sering melihat `u64` untuk menyimpan jumlah lamports dan token.
+**Koneksi ke Anchor:** Struct `EscrowOffer` yang kamu tulis hari ini adalah versi sederhana dari
+`EscrowState` yang akan kamu deklarasikan di Lesson 6 dengan `#[account]`.
 
 ---
 
-### Langkah 2: Tipe Data Dasar
+### Section C — Enum dan match *(~10 menit)*
 
-```rust
-// Integer
-let i: i64 = -100;      // bertanda (signed)
-let u: u64 = 1_000_000; // tak bertanda (unsigned) — paling umum di Solana
+Konsep yang dipraktikkan:
+- Definisi `enum` dengan multiple variant
+- `match` expression — exhaustive pattern matching
+- `impl Display` untuk pesan error yang readable
 
-// Float
-let f: f64 = 3.14;
-
-// Bool
-let aktif: bool = true;
-
-// String
-let s1: String = String::from("owned string"); // heap-allocated
-let s2: &str   = "string literal";             // stack reference
-
-// Tuple
-let pair: (u64, bool) = (42, true);
-
-// Array (panjang tetap)
-let pubkey_bytes: [u8; 32] = [0u8; 32]; // contoh: 32 bytes pubkey
-```
+**Koneksi ke Anchor:** `EscrowError` di sini adalah versi sederhana dari error codes di Anchor
+yang didekorasi dengan `#[error_code]`.
 
 ---
 
-### Langkah 3: Control Flow
+### Section D — Option dan Result dengan `?` *(~15 menit)*
 
-```rust
-// if / else
-if saldo > 0 {
-    println!("Saldo ada: {}", saldo);
-} else {
-    println!("Saldo kosong");
-}
+Konsep yang dipraktikkan:
+- `Result<T, E>` — return value yang bisa berhasil atau gagal
+- Operator `?` — cara elegan untuk propagasi error
+- `Option<T>` — nilai yang mungkin ada atau tidak ada
+- `if let Some(x) = ...` — unwrap aman tanpa risiko panic
+- `.map()` dan `.unwrap_or_else()` — transformasi option
 
-// for range
-for i in 0..5 {
-    println!("Index: {}", i);
-}
-
-// match — wajib exhaustive (semua kasus ditangani)
-let status = "aktif";
-match status {
-    "aktif"   => println!("Member aktif"),
-    "expired" => println!("Perpanjang membership"),
-    _         => println!("Status tidak dikenal"), // wildcard
-}
-```
-
-`match` adalah fitur paling kuat di Rust. Di Anchor, kita pakai `match` untuk menangani
-berbagai jenis error dan status akun.
+**Kenapa penting?** Hampir semua fungsi di Anchor return `Result<()>`. Operator `?`
+digunakan di setiap baris instruksi handler. Menguasai ini = fluent di Anchor.
 
 ---
 
-### Langkah 4: Structs
+### Section E — References dan Borrowing *(~10 menit)*
 
-Struct dipakai untuk mengelompokkan data yang berhubungan. Di Anchor, setiap **Account state**
-didefinisikan sebagai struct.
+Konsep yang dipraktikkan:
+- Borrow dengan `&` vs move (tanpa `&`)
+- Function signature dengan reference parameter
+- Kenapa semua parameter di CPI Anchor menggunakan referensi
 
-```rust
-#[derive(Debug)]
-struct Member {
-    nama: String,
-    saldo: u64,
-    aktif: bool,
-}
-
-impl Member {
-    // Constructor (associated function)
-    fn baru(nama: &str, saldo: u64) -> Member {
-        Member {
-            nama: String::from(nama),
-            saldo,
-            aktif: true,
-        }
-    }
-
-    // Method baca
-    fn cek_saldo(&self) -> u64 {
-        self.saldo
-    }
-
-    // Method ubah
-    fn deposit(&mut self, jumlah: u64) {
-        self.saldo += jumlah;
-    }
-}
-
-let mut budi = Member::baru("Budi", 1_000_000);
-budi.deposit(500_000);
-println!("Saldo Budi: {}", budi.cek_saldo());
-```
-
----
-
-### Langkah 5: Enums, Option & Result
-
-```rust
-// Enum biasa
-enum StatusMember {
-    Aktif,
-    Expired,
-    Banned { alasan: String },
-}
-
-// Option<T> — nilai yang mungkin ada atau tidak
-// Tidak ada null di Rust! Option memaksa kamu tangani keduanya.
-let nama: Option<String> = Some(String::from("Budi"));
-let kosong: Option<String> = None;
-
-match nama {
-    Some(n) => println!("Nama: {}", n),
-    None    => println!("Tidak ada nama"),
-}
-
-// Result<T, E> — operasi yang bisa sukses atau gagal
-fn bagi(a: u64, b: u64) -> Result<u64, String> {
-    if b == 0 {
-        return Err(String::from("Tidak bisa bagi dengan nol!"));
-    }
-    Ok(a / b)
-}
-```
-
-Di Anchor, setiap instruction handler mengembalikan `Result<()>`. Error ditangani
-dengan custom `#[error_code]` enum.
-
----
-
-### Langkah 6: Ownership
-
-**Analogi:** Sistem pinjam buku di perpustakaan.
-- Hanya 1 orang yang bisa "memiliki" buku sekaligus
-- Saat pemilik pergi (keluar scope), buku dikembalikan ke rak (memori dibebaskan)
-- Tidak ada garbage collector — memori dikelola otomatis oleh compiler
-
-```rust
-// MOVE: s1 tidak valid setelah di-assign ke s2
-let s1 = String::from("hello");
-let s2 = s1;
-// println!("{}", s1); // ERROR: value moved
-
-// CLONE: buat salinan eksplisit
-let s3 = String::from("world");
-let s4 = s3.clone(); // sekarang s3 dan s4 keduanya valid
-
-// Copy types: int, bool, char, tuple/array dari copy types
-let x = 5;
-let y = x; // int di-COPY, bukan di-move
-println!("{} {}", x, y); // keduanya valid
-```
-
----
-
-### Langkah 7: Borrowing & References
-
-**Analogi:** Baca buku di perpustakaan tanpa membawanya pulang.
-
-```rust
-let s = String::from("hello");
-
-// Immutable reference: &T — bisa banyak sekaligus
-let r1 = &s;
-let r2 = &s;
-println!("{} {}", r1, r2); // keduanya valid
-
-// Mutable reference: &mut T — hanya SATU sekaligus
-let mut s2 = String::from("hello");
-let r3 = &mut s2;
-r3.push_str(", world");
-println!("{}", r3);
-```
-
-**Aturan borrow (diperiksa compiler):**
-1. Boleh banyak `&T` (shared/immutable) sekaligus, ATAU
-2. Tepat satu `&mut T` (exclusive/mutable), tidak bisa bersamaan
+**Koneksi ke Anchor:** Di Anchor, accounts diteruskan lewat `ctx.accounts.nama_account`
+yang selalu berupa referensi. Kamu tidak pernah "memindahkan" ownership sebuah account.
 
 ---
 
 ## Ringkasan Konsep
 
-| Konsep | Penjelasan Singkat |
-|--------|--------------------|
-| `let` | Deklarasi variabel (default immutable) |
-| `let mut` | Variabel yang bisa diubah nilainya |
-| `const` | Konstanta (immutable, perlu tipe eksplisit) |
-| `struct` | Mengelompokkan data terkait |
-| `impl` | Menambahkan method ke struct |
-| `enum` | Tipe dengan beberapa varian |
-| `Option<T>` | Nilai yang mungkin ada (`Some`) atau tidak (`None`) |
-| `Result<T, E>` | Operasi yang bisa sukses (`Ok`) atau gagal (`Err`) |
-| Ownership | Setiap nilai punya 1 pemilik; freed saat owner keluar scope |
-| Borrowing | Pinjam nilai tanpa pindah ownership (`&T` atau `&mut T`) |
-| `mod` | Modul untuk organisasi kode |
-| `pub` | Publik — bisa diakses dari luar modul |
+| Konsep | Syntax | Contoh dalam Anchor |
+|--------|--------|---------------------|
+| Struct | `pub struct Foo { pub x: u64 }` | `#[account] pub struct State { ... }` |
+| Impl | `impl Foo { fn bar(&self) {} }` | Method di account struct |
+| Enum error | `enum E { Invalid }` | `#[error_code] pub enum E { ... }` |
+| Result + `?` | `fn f() -> Result<(), E> { g()?; Ok(()) }` | Setiap instruction handler |
+| Option | `Option<T>`, `if let Some(x)` | Optional accounts, optional fields |
+| Reference | `fn f(x: &Foo)` | `ctx.accounts.vault`, CPI helpers |
+| Match | `match e { A => ..., B => ... }` | Error handling, status checks |
 
 ---
 
-## Langkah Selanjutnya
+## Materi Tambahan
 
-- **Lesson 6**: Anchor Part 2 — Building Escrows
-  (PDA, CPI, SPL Token dalam Anchor, escrow make/take/cancel)
-- Lanjutkan Rustlings sampai chapter `traits`, `lifetimes`, dan `iterators`
-- Baca [The Rust Book](https://doc.rust-lang.org/book/) — gratis, lengkap, dan sangat baik
-- Bergabung dengan [Superteam Indonesia](https://superteam.fun/indonesia) untuk networking, bounties, dan hackathon
+### Wajib dibaca sebelum Lesson 6
+- [The Rust Book — Chapters 4-6](https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html)
+  (ownership, references, enums dan pattern matching)
+
+### Latihan mandiri (opsional, kerjakan sebelum Lesson 6)
+- [Rustlings](https://rustlings.rust-lang.org/) — exercises interaktif Rust
+  Prioritaskan chapter berikut (dalam urutan ini):
+  1. `variables`
+  2. `primitive_types`
+  3. `move_semantics`
+  4. `structs`
+  5. `enums`
+  6. `error_handling`
+
+### Referensi Anchor (preview Lesson 6)
+- https://www.anchor-lang.com/docs
+- https://learn.blueshift.gg/en/courses/anchor-for-dummies/anchor-101
+
+---
+
+## Next Steps
+
+**Lesson 6 — Anchor Part 2: Building Escrows**
+
+Kamu akan mengambil konsep yang dipelajari hari ini dan menerapkannya sebagai on-chain program:
+- `EscrowOffer` → `#[account] pub struct EscrowState`
+- `EscrowError` → `#[error_code] pub enum EscrowError`
+- `make_offer()` → instruction handler yang write ke blockchain
+- References → account contexts dengan `&ctx.accounts.vault`
+
+Cek progress kamu di Superteam Indonesia:
+- Telegram: [t.me/superteamindonesia](https://t.me/superteamindonesia)
+- Website: [superteam.fun/indonesia](https://superteam.fun/indonesia)
