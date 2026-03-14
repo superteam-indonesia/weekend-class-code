@@ -1,0 +1,16 @@
+[package]
+name = "rust-primer"
+version = "0.1.0"
+edition = "2021"
+
+# Dua binary: solution (jawaban) dan workshop (file latihan)
+# Jalankan workshop: cargo run --bin workshop
+# Jalankan solution: cargo run --bin solution
+
+[[bin]]
+name = "solution"
+path = "src/main.rs"
+
+[[bin]]
+name = "workshop"
+path = "src/workshop.rs"
